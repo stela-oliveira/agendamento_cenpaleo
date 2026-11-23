@@ -1,58 +1,186 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Agendamento de Visitas — CENPALEO
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web para solicitar, organizar e acompanhar visitas ao CENPALEO — Centro Paleontológico da Universidade do Contestado.
 
-## About Laravel
+Esta é a branch principal do projeto, com o fluxo completo de agendamento e administração de visitas.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Funcionalidades
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- calendário público com disponibilidade atualizada por data e turno;
+- solicitação de visita pela manhã, à tarde ou nos dois turnos;
+- prevenção de agendamentos e bloqueios conflitantes;
+- painel administrativo responsivo com calendário, filtros e turnos bloqueados;
+- confirmação interna antes de cancelar agendamentos ou remover bloqueios;
+- envio de mensagem inicial por e-mail após a solicitação;
+- autenticação administrativa configurada por variáveis de ambiente.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tecnologias e dependências
 
-## Learning Laravel
+### Requisitos do ambiente
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Ferramenta | Versão |
+| --- | --- |
+| PHP | 8.3 ou superior |
+| Composer | 2.x |
+| Node.js | 20.19 ou superior, ou 22.12 ou superior |
+| npm | Compatível com a versão instalada do Node.js |
+| Banco de dados | SQLite por padrão; PostgreSQL também pode ser configurado |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+O PHP precisa ter as extensões usuais do Laravel habilitadas, incluindo `ctype`, `dom`, `fileinfo`, `filter`, `iconv`, `json`, `libxml`, `openssl`, `pcre`, `session`, `tokenizer`, `xml` e `xmlwriter`. Para SQLite, habilite também `pdo_sqlite`.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Principais dependências
 
-## Agentic Development
+| Camada | Pacotes |
+| --- | --- |
+| Backend | Laravel 13, Laravel Tinker 3 |
+| Frontend | Vite 8, Tailwind CSS 4, plugin Vite do Laravel 3 |
+| Desenvolvimento e testes | Laravel Boost 2, Laravel Pint 1, PHPUnit 12, Mockery 1, Faker 1 |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+As versões e a lista completas ficam em `composer.json`, `composer.lock`, `package.json` e `package-lock.json`.
+
+## Instalação
+
+Clone o fork e selecione esta branch:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/stela-oliveira/agendamento_cenpaleo.git
+cd agendamento_cenpaleo
+git checkout main
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Crie o arquivo do banco SQLite caso ele ainda não exista.
 
-## Contributing
+No Windows PowerShell:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```powershell
+New-Item database/database.sqlite -ItemType File -Force
+```
 
-## Code of Conduct
+No Linux ou macOS:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+touch database/database.sqlite
+```
 
-## Security Vulnerabilities
+Execute a preparação automatizada. O comando instala as dependências PHP e JavaScript, cria o `.env`, gera a chave da aplicação, executa as migrações e compila o frontend:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer run setup
+```
 
-## License
+Se preferir executar manualmente:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+```
+
+No Windows PowerShell, substitua `cp .env.example .env` por:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+## Configuração
+
+Edite o arquivo `.env`. Para desenvolvimento local com SQLite, mantenha:
+
+```dotenv
+APP_URL=http://localhost:8000
+DB_CONNECTION=sqlite
+SESSION_DRIVER=file
+CACHE_STORE=file
+```
+
+Defina credenciais administrativas próprias, principalmente em produção:
+
+```dotenv
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=uma-senha-forte
+```
+
+Nunca envie o arquivo `.env` ao Git nem publique senhas reais no README.
+
+## Configuração de e-mail
+
+### Teste local sem enviar mensagens reais
+
+O modo `log` grava o conteúdo das mensagens em `storage/logs/laravel.log`:
+
+```dotenv
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="cenpaleo@unc.br"
+MAIL_FROM_NAME="CENPALEO"
+```
+
+### Envio por SMTP
+
+Solicite ao provedor ou à universidade o host, a porta e o método de segurança corretos. Um exemplo com SMTPS na porta 465 é:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtps
+MAIL_HOST=smtp.seu-provedor.com
+MAIL_PORT=465
+MAIL_USERNAME=seu-usuario
+MAIL_PASSWORD="sua-senha-ou-senha-de-aplicativo"
+MAIL_FROM_ADDRESS=seu-email@dominio.com
+MAIL_FROM_NAME="CENPALEO"
+```
+
+Para provedores que usam STARTTLS na porta 587, normalmente use `MAIL_SCHEME=smtp` e `MAIL_PORT=587`. Confirme essa configuração com o provedor. Depois de alterar o `.env`, limpe o cache:
+
+```bash
+php artisan optimize:clear
+```
+
+O endereço em `MAIL_FROM_ADDRESS` precisa ser autorizado pelo provedor. Contas institucionais também podem exigir senha de aplicativo, autenticação em duas etapas ou liberação do SMTP pelo administrador.
+
+## Executando o projeto
+
+O comando recomendado inicia os processos de desenvolvimento do Laravel e do frontend:
+
+```bash
+composer run dev
+```
+
+Acesse:
+
+- site público: `http://localhost:8000`;
+- administração: `http://localhost:8000/admin/login`.
+
+Para executar cada processo separadamente, use terminais diferentes:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+## Testes e qualidade
+
+```bash
+composer test
+php artisan test
+vendor/bin/pint --test
+npm run build
+```
+
+## Atualização do projeto
+
+Após receber mudanças com novas dependências ou migrações:
+
+```bash
+composer install
+npm install
+php artisan migrate
+php artisan optimize:clear
+npm run build
+```
+
+## Produção
+
+Antes de publicar, use `APP_ENV=production`, `APP_DEBUG=false`, HTTPS e credenciais fortes. Configure o banco e o SMTP no ambiente do servidor; execute as migrações com `php artisan migrate --force`; e mantenha `.env`, chaves e senhas fora do repositório.
